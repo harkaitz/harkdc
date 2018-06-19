@@ -1,0 +1,29 @@
+#!/bin/sh
+case "$1" in
+    -v) export LIBSERIALPORT_DEBUG=1 ; shift;;
+esac
+case "$1" in
+    -mpd)
+	harkdc <<EOF | cat
+device mpd MPD-3305D /dev/ttyUSB1
+device mpd MPD-3305D /dev/ttyUSB0
+table mpd/v1=2 mpd/v2=2
+exit
+EOF
+	;;
+    -array)
+	harkdc <<EOF | cat
+device array ARRAY-371X /dev/ttyUSB0
+device array ARRAY-371X /dev/ttyUSB1
+EOF
+	;;
+    "")
+	cat <<EOF
+Usage: test-harkdc ...
+
+  -mpd   : Test MPD device.
+  -array : Test ARRAY device.
+
+EOF
+	;;
+esac

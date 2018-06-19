@@ -1,0 +1,30 @@
+#!/bin/sh
+## Parse command line arguments.
+TYPE="$1"
+NAME="$2"
+shift 2
+if test ! -n "$TYPE" || test ! -n "$NAME" || test ! -n "$*";then
+    echo "makeh <type> <name> CFILES..."
+    exit 1
+fi
+
+
+## List types.
+list_types()
+{
+    t="$1" ; shift
+    sed -n "s|^$t \\([a-zA-Z0-9_][a-zA-Z0-9_]*\\) = .*|\\1|pg" $@
+}
+VARIABLES="`list_types "$TYPE" "$@"| tr '\n' ' '`"
+
+## Print header.
+echo "/* List of \`$TYPE\` typed variables.*/"
+for v in $VARIABLES;do
+    echo "extern $TYPE $v;"
+done
+echo "$TYPE *$NAME[] = {"
+for v in $VARIABLES;do
+    echo "    &$v,"
+done
+echo "    NULL"
+echo "};"

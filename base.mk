@@ -31,7 +31,7 @@ HOST    ?=$(shell uname -s)
 BUILD   ?=$(shell uname -s)
 BDIR    ?=/tmp/build/$(PROJECT)-$(VERSION)-$(HOST)
 DDIR    ?=/tmp/build
-PREFIX   =/usr/local
+PREFIX  ?=/usr/local
 ifeq ($(HOST),$(BUILD))
 DESTDIR ?=$(HOME)/.local
 else

@@ -60,7 +60,7 @@ int main_func(int argc,char *argv[]) {
 	  if(!strcasecmp(argv[1],"-h")) {
 	       printf("%s",help);
 	  } else {
-	       test_opts = argv+1;
+	       test_opts = argv+2;
 	       FOREACH_TEST(t) {
 		    if(!strcasecmp(t->name,argv[1])) { test = t; }
 	       }
@@ -72,12 +72,12 @@ int main_func(int argc,char *argv[]) {
 		    harkd_clean();
 		    return 1;
 	       }
+	       main_client (u);
 	  }
-     }	  
-     if(fp_isatty(stdin)) {
+     } else if(fp_isatty(stdin)) {
 	  fprintf(stderr,"%s",prompt);
+	  main_client (u);
      }
-     main_client (u);
      harkd_clean();
      fflush(stdout);
      fflush(stderr);

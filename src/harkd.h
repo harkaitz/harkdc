@@ -2,12 +2,14 @@
 #define _HARKD_H_
 #include <stddef.h>
 #define HARKD_MAX_NAME 20
-typedef struct harkd_s      harkd_t;
-typedef struct harkd_def_s  harkd_def_t;
-typedef struct uterm_s      uterm_t;
-typedef struct uterm_db_s   uterm_db_t;
-typedef struct sp_port      sp_port_t;
-typedef struct harkd_test_s harkd_test_t;
+typedef struct harkd_s       harkd_t;
+typedef struct harkd_def_s   harkd_def_t;
+typedef struct uterm_s       uterm_t;
+typedef struct uterm_db_s    uterm_db_t;
+typedef struct sp_port       sp_port_t;
+typedef struct harkd_test_s  harkd_test_t;
+typedef struct harkd_table_s harkd_table_t;
+
 typedef enum {
      HARKD_OK  = 0,
      HARKD_ERR = -1
@@ -82,8 +84,15 @@ int      harkd_is_openned(harkd_t *harkd);
 int      harkd_port_is_openned(uterm_t *uterm,const char *portname);
 void     harkd_wait(int ms);
 
-
-
-
-
+/* -------------------------------------------------------------- */
+harkd_table_t *harkd_table_new        (const char *filename,uterm_t *opt_uterm);
+void           harkd_table_free       (harkd_table_t *t);
+void           harkd_table_add        (harkd_table_t *t,double d);
+void           harkd_table_add_string (harkd_table_t *t,const char *s);
+void           harkd_table_add_formula(harkd_table_t *t,const char *s,...);
+void           harkd_table_next  (harkd_table_t *t);
+void           harkd_table_next_column(harkd_table_t *t);
+int            harkd_table_column(harkd_table_t *t);
+int            harkd_table_row   (harkd_table_t *t);
+void           harkd_table_add_chart (harkd_table_t *t,const char *names,const char *yx,...);
 #endif

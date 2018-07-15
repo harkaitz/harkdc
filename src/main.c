@@ -1,9 +1,8 @@
 #include <uterm/uterm.h>
-#include <uterm/uterm-socket.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "harkd.h"
 #include "harkd-device.h"
 #include "harkd-test.h"
@@ -18,9 +17,8 @@
 #ifndef COPYRIGHT
 #  define COPYRIGHT "Copyright (c) 2018, Harkaitz Agirre ezama, All rights reserved."
 #endif
-const harkd_test_t *test      = NULL;
-char              **test_opts = NULL;
-
+static const harkd_test_t *test      = NULL;
+static char              **test_opts = NULL;
 
 uterm_db_t HARKD_COMMANDS[];
 void *main_client (uterm_t *uterm) {
@@ -35,8 +33,7 @@ void *main_client (uterm_t *uterm) {
 }
 int main_func(int argc,char *argv[]) {
      const char *help =
-	  "Usage: harkdc -p PORT [-l HOST] [-C MAXCONNS]"          NL
-	  "       harkdc"                                          NL
+	  "Usage: harkdc [TEST ARGS...]"                           NL
 	  ""                                                       NL
 	  "HARKDC is a tool to manage some electronic instruments" NL
 	  "programatically with a PC."                             NL
@@ -58,26 +55,14 @@ int main_func(int argc,char *argv[]) {
 	  ;
      uterm_t *u = uterm_global(0);
      uterm_io_config_stdio(u,"harkd> ");
-     char *port    = NULL;
-     char *host    = "127.0.0.1";
-     int   maxconn = 20;
-     
-     
-     int c; while((c=getopt(argc,argv,"l:p:C:h"))!=-1) {
-	  switch(c) {
-	  case 'h': printf("%s",help);      return 0;
-	  case 'p': port    = optarg;       break;
-	  case 'l': host    = optarg;       break;
-	  case 'C': maxconn = atoi(optarg); break;
-	  default: return 1;
-	  }
-     }
-     
      harkd_init();
-     {
-	  if(optind<argc) {
+     if(argc>1) {
+	  if(!strcasecmp(argv[1],"-h")) {
+	       printf("%s",help);
+	  } else {
+	       test_opts = argv+1;
 	       FOREACH_TEST(t) {
-		    if(!strcasecmp(t->name,argv[optind])) { test = t; }
+		    if(!strcasecmp(t->name,argv[1])) { test = t; }
 	       }
 	       if(!test) {
 		    FOREACH_TEST(t) {
@@ -87,21 +72,13 @@ int main_func(int argc,char *argv[]) {
 		    harkd_clean();
 		    return 1;
 	       }
-	       test_opts = argv+optind+1;
 	  }
-	  if(port) {
-	       uterm_server(".\n","ERROR\n",
-			    host,port,maxconn,
-			    main_client);
-	  } else {
-	       if(fp_isatty(stdin)) {
-		    fprintf(stderr,"%s",prompt);
-	       }
-	       main_client (u);
-	  }
+     }	  
+     if(fp_isatty(stdin)) {
+	  fprintf(stderr,"%s",prompt);
      }
+     main_client (u);
      harkd_clean();
-     
      fflush(stdout);
      fflush(stderr);
      return 0;

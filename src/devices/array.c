@@ -26,7 +26,7 @@ typedef struct __attribute__((__packed__)) {
 } msg_371x_info_set_t;
 typedef struct __attribute__((__packed__)) {
      u_int16_t I;
-     u_int32_t V;
+     u_int16_t V; u_int16_t V2;
      u_int16_t P;
      u_int16_t IM;
      u_int16_t PM;

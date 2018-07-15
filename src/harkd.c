@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <uterm/uterm.h>
 #include <libserialport.h>
+#ifndef DISABLE_XLSX
+#  include <xlsxwriter.h>
+#endif
+
 #include <string.h>
+#include <stdarg.h>
 
 #include "harkd.h"
 #include "harkd-device.h"
@@ -402,6 +407,117 @@ harkd_r harkd_test_run(uterm_t *u,const harkd_test_t *t,char *i_opts[]) {
      return t->fun(u,opts);
 }
 
+
+
+
+
+/* -------------------------------- TABLE ------------------------------------ */
+struct harkd_table_s {
+#    ifndef DISABLE_XLSX
+     lxw_workbook  *workbook;
+     lxw_worksheet *worksheet;
+     lxw_chart     *chart;
+#    endif
+     uterm_t *u;
+     int row,col,max_col;
+};
+harkd_table_t *harkd_table_new(const char *filename,uterm_t *opt_uterm) {
+     harkd_table_t *t = malloc(sizeof(*t));
+#    ifndef DISABLE_XLSX
+     t->workbook  = workbook_new(filename);
+     t->worksheet = workbook_add_worksheet(t->workbook,NULL);
+     t->chart     = NULL;
+#    endif
+     t->row = 0;
+     t->col = 0;
+     t->max_col = 0;
+     t->u   = (opt_uterm)?opt_uterm:uterm_global(0);
+     return t;
+}
+void harkd_table_free(harkd_table_t *t) {
+     if(t) {
+#         ifndef DISABLE_XLSX
+	  if(t->chart) {
+	       worksheet_insert_chart(t->worksheet,0,t->max_col, t->chart);
+	  }
+	  workbook_close(t->workbook);
+#         endif
+	  free(t);
+     }
+}
+void harkd_table_add(harkd_table_t *t,double d) {
+     uterm_printf(t->u,"%-15f",d);
+#    ifndef DISABLE_XLSX
+     worksheet_write_number(t->worksheet, t->row, t->col, d, NULL);
+#    endif
+     harkd_table_next_column(t);
+}
+void harkd_table_add_string(harkd_table_t *t,const char *s) {
+     uterm_printf(t->u,"%-15s",s);
+#    ifndef DISABLE_XLSX
+     worksheet_write_string(t->worksheet, t->row, t->col, s, NULL);
+#    endif
+     harkd_table_next_column(t);
+}
+void harkd_table_add_formula(harkd_table_t *t,const char *format,...) {
+#    ifndef DISABLE_XLSX
+     char s[64];
+     va_list args;
+     va_start(args, format);
+     vsprintf(s,format,args);
+     va_end(args);
+     uterm_printf(t->u,"%-15s",s);
+     worksheet_write_formula(t->worksheet, t->row, t->col, s, NULL);
+#    endif
+     harkd_table_next_column(t);
+}
+void harkd_table_next(harkd_table_t *t) {
+     t->row++;
+     t->col = 0;
+     uterm_printf(t->u,"\n");
+}
+void harkd_table_next_column(harkd_table_t *t) {
+     uterm_printf(t->u,",");
+     if((++t->col)>(t->max_col))
+	  t->max_col = t->col;
+}
+
+int  harkd_table_column(harkd_table_t *t) { return t->col; }
+int  harkd_table_row   (harkd_table_t *t) { return t->row; }
+void harkd_table_add_chart (harkd_table_t *t,const char *names,const char *yx,...) {
+     char s[128];
+     va_list args;
+     va_start(args, yx);
+     vsprintf(s,yx,args);
+     va_end(args);
+     const char *y = NULL,*x = NULL;
+     y = strtok(s,";");
+     if(y) x = strtok(NULL,";");
+     if(!t->chart) {
+	  t->chart = workbook_add_chart(t->workbook, LXW_CHART_LINE);
+     }
+     /* Configure the chart. */
+     chart_add_series(t->chart, x , y);
+     if(names) {
+	  strcpy(s,names);
+	  if((y = strtok(s,";")))
+	       x = strtok(NULL,";");
+	  else
+	       x = NULL;
+	  if(y) chart_axis_set_name(t->chart->y_axis,y);
+	  if(x) chart_axis_set_name(t->chart->x_axis,x);
+     }
+}
+
+
+
+
+
+
+
+
+
+
 #ifdef _WIN32
 #  include <windows.h>
 #else
@@ -416,3 +532,4 @@ void harkd_wait(int ms) {
      usleep(ms*1000);
 #    endif
 }
+

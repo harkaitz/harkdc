@@ -69,8 +69,8 @@ harkd_r harkd_dcdc_test (uterm_t *u,harkd_test_var_t *vars) {
 	  harkd_table_add_formula(t,"=A%i*B%i",r,r);
 	  harkd_table_add_formula(t,"=C%i*D%i",r,r);
 	  */
-	  harkd_table_add(t,Iload  * Vload);
 	  harkd_table_add(t,Isupply* Vsupply);
+	  harkd_table_add(t,Iload  * Vload);
 	  harkd_table_next(t);
      }
      if(s) harkd_free(s);

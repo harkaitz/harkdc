@@ -1,9 +1,13 @@
-#include "../harkd-test.h"
+#include "../harkd.h"
 #include <string.h>
-harkd_r harkd_dcdc_test (uterm_t *u,harkd_test_var_t *vars) {
-     harkd_t *l=NULL,*s=NULL; harkd_table_t *t = NULL;
+#include <stdlib.h>
+#ifndef NL
+#  define NL "\n"
+#endif
+harkd_r harkd_dcdc_test (harkd_test_var_t *vars) {
+     harkd_dev_obj_t *l=NULL,*s=NULL; harkd_table_t *t = NULL;
      double Vin=0,Imax=0; int N=1,Tstep=0;
-     double Istep=0,Isupply=0,Vsupply=0,Iload=0,Vload=0;
+     double Istep=0,Isupply=0,Vsupply=0,Iload=0,Vload=0,Imaxin=5;
      const char
 	  *Iout   = "I1",
 	  *Vout   = "V1",
@@ -13,6 +17,8 @@ harkd_r harkd_dcdc_test (uterm_t *u,harkd_test_var_t *vars) {
 	       Vin = atof(v->value);
 	  } else if(!strcasecmp(v->name,"Imax")) {
 	       Imax = atof(v->value);
+	  } else if(!strcasecmp(v->name,"Imaxin")) {
+	       Imaxin = atof(v->value);
 	  } else if(!strcasecmp(v->name,"N")) {
 	       N = atoi(v->value);
 	  } else if(!strcasecmp(v->name,"Tstep")) {
@@ -31,15 +37,15 @@ harkd_r harkd_dcdc_test (uterm_t *u,harkd_test_var_t *vars) {
 		    goto error;
 	       }
 	  } else {
-	       uterm_errorf(u,"Invalid variable `%s`.",v->name);
+	       harkd_error(NULL,"Invalid variable `%s`.",v->name);
 	       goto error;
 	  }
      }
-     l = harkd_new("load"  ,harkd_get_def("ARRAY-371X"),NULL,NULL,u);
-     s = harkd_new("supply",harkd_get_def("MPD-3305D") ,NULL,NULL,u);
-     if(!l) { uterm_errorf(u,"Can't find a compatible load."  ); goto error; }
-     if(!s) { uterm_errorf(u,"Can't find a compatible supply."); goto error; }
-     t = harkd_table_new(Output,u);
+     l = harkd_new("load"  ,harkd_get_itf("ARRAY-371X"),NULL,NULL);
+     s = harkd_new("supply",harkd_get_itf("MPD-3305D") ,NULL,NULL);
+     if(!l) { harkd_error(NULL,"Can't find a compatible load."  ); goto error; }
+     if(!s) { harkd_error(NULL,"Can't find a compatible supply."); goto error; }
+     t = harkd_table_new(Output);
      harkd_table_add_string(t,"I(in)");
      harkd_table_add_string(t,"V(in)");
      harkd_table_add_string(t,"I(out)");
@@ -47,11 +53,10 @@ harkd_r harkd_dcdc_test (uterm_t *u,harkd_test_var_t *vars) {
      harkd_table_add_string(t,"P(in)");
      harkd_table_add_string(t,"P(out)");
      
-     harkd_table_add_chart(t,"V(out);I(in)","Sheet1!$D$2:$D$%i;Sheet1!$A$2:$A$%i",N+1,N+1);
+     harkd_table_add_chart(t,"V(out);I(out)","Sheet1!$D$2:$D$%i;Sheet1!$C$2:$C$%i",N+1,N+1);
      harkd_table_next(t);
      Istep = Imax/N*1;
-     //double Imaxin = 5;
-     //harkd_var_set(s,Iout,&Imaxin);
+     harkd_var_set(s,Iout,&Imaxin);
      harkd_var_set(s,Vout,&Vin);
      for(double I=0;I<Imax;I+=Istep) {
 	  harkd_var_set(l,"I",&I);

@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(harkdc VERSION 0.1)
+find_package(PkgConfig REQUIRED)
 
 # C/C++ flags.
 if ( CMAKE_COMPILER_IS_GNUCC )
@@ -17,9 +18,10 @@ endif ( MSVC )
 # Source all .cmake files.
 file(GLOB cmakefiles "${CMAKE_SOURCE_DIR}/cmake/*.cmake")
 foreach(cmakefile ${cmakefiles})
-  message("** Sourcing `${cmakefile}` ...")
   include(${cmakefile})
 endforeach()
+list(REVERSE LIBS)
+
 
 # Package config.
 message(cmake/${PROJECT_NAME}-config.cmake.in)

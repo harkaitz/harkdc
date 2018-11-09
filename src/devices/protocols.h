@@ -16,8 +16,8 @@ typedef struct __attribute__((__packed__)) {
      u_int8_t info[22];
      u_int8_t chksum;
 } msg26_t;
-harkd_r msg26_send(harkd_t *harkd,msg26_t *msg,u_int8_t addr);
-harkd_r msg26_recv(harkd_t *harkd,msg26_t *msg);
+harkd_r msg26_send(harkd_dev_obj_t *harkd,msg26_t *msg,u_int8_t addr);
+harkd_r msg26_recv(harkd_dev_obj_t *harkd,msg26_t *msg);
 void    msg26_init(msg26_t *msg,u_int8_t cmd);
 
 

@@ -1,10 +1,11 @@
 /**
  *
  */
-#include "../harkd-device.h"
+#include "../harkd.h"
 #include "protocols.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define MSG_371X_CMD_SET          0x90
 #define MSG_371X_CMD_GET          0x91
 #define MSG_371X_CMD_SET_ON_OFF   0x92
@@ -36,12 +37,12 @@ typedef struct __attribute__((__packed__)) {
 
 
 
-harkd_r msg_371x_send_ON(harkd_t *harkd,u_int8_t addr) {
+harkd_r msg_371x_send_ON(harkd_dev_obj_t *harkd,u_int8_t addr) {
      msg26_t msg; msg26_init(&msg,MSG_371X_CMD_SET_ON_OFF);
      msg.info[0] = 0b00000011;
      return msg26_send(harkd,&msg,addr);
 }
-harkd_r msg_371x_send_R(harkd_t *harkd,u_int8_t addr,double R,double IM,double PM) {
+harkd_r msg_371x_send_R(harkd_dev_obj_t *harkd,u_int8_t addr,double R,double IM,double PM) {
      msg26_t msg; msg26_init(&msg,MSG_371X_CMD_SET);
      msg_371x_info_set_t *set = (msg_371x_info_set_t *) msg.info;
      set->IM    = (u_int16_t) ((IM) * 30000/30 );
@@ -50,7 +51,7 @@ harkd_r msg_371x_send_R(harkd_t *harkd,u_int8_t addr,double R,double IM,double P
      set->value = (u_int16_t) ( (R) * 50000/500 );
      return msg26_send(harkd,&msg,addr);
 }
-harkd_r msg_371x_send_I(harkd_t *harkd,u_int8_t addr,double I,double IM,double PM) {
+harkd_r msg_371x_send_I(harkd_dev_obj_t *harkd,u_int8_t addr,double I,double IM,double PM) {
      msg26_t msg; msg26_init(&msg,MSG_371X_CMD_SET);
      msg_371x_info_set_t *set = (msg_371x_info_set_t *) msg.info;
      set->IM    = IM * (30000/30 );
@@ -59,7 +60,7 @@ harkd_r msg_371x_send_I(harkd_t *harkd,u_int8_t addr,double I,double IM,double P
      set->value = (u_int16_t) ( (I) * 30000/30 );
      return msg26_send(harkd,&msg,addr);
 }
-harkd_r msg_371x_send_P(harkd_t *harkd,u_int8_t addr,double P,double IM,double PM) {
+harkd_r msg_371x_send_P(harkd_dev_obj_t *harkd,u_int8_t addr,double P,double IM,double PM) {
      msg26_t msg; msg26_init(&msg,MSG_371X_CMD_SET);
      msg_371x_info_set_t *set = (msg_371x_info_set_t *) msg.info;
      set->IM    = IM * (30000/30 );
@@ -68,7 +69,7 @@ harkd_r msg_371x_send_P(harkd_t *harkd,u_int8_t addr,double P,double IM,double P
      set->value = (u_int16_t) ( (P) * 2000/200 );
      return msg26_send(harkd,&msg,addr);
 }
-harkd_r msg_371x_send_recv_get(harkd_t *harkd,u_int8_t addr,
+harkd_r msg_371x_send_recv_get(harkd_dev_obj_t *harkd,u_int8_t addr,
 			       double *I ,double *V ,double *P,
 			       double *IM,double *PM,double *R) {
      harkd_r r;
@@ -106,8 +107,8 @@ typedef struct {
      u_int8_t addr;
      double I,V,P,IM,PM,R;
 } harkd_371x_t;
-harkd_r harkd_array_init(harkd_t *harkd,const char *port,char *args[]) {
-     harkd_371x_t *d = harkd_udata(harkd);
+harkd_r harkd_array_init(harkd_dev_obj_t *harkd,const char *port,const char *args[]) {
+     harkd_371x_t *d = harkd_itf_data(harkd,harkd_371x_t);
      d->addr = 0x0;
      d->IM   = 30;
      d->PM   = 200;
@@ -129,11 +130,11 @@ io_error:
 another_device:
      return HARKD_ERR;
 }
-harkd_r harkd_array_command(harkd_t *harkd,char *args[]) {
+harkd_r harkd_array_command(harkd_dev_obj_t *harkd,const char *args[]) {
      return HARKD_OK;
 }
-harkd_r harkd_array_get (harkd_t *harkd,const char *var,double *val) {
-     harkd_371x_t *d = harkd_udata(harkd);
+harkd_r harkd_array_get (harkd_dev_obj_t *harkd,const char *var,double *val) {
+     harkd_371x_t *d = harkd_itf_data(harkd,harkd_371x_t);
      harkd_r r = msg_371x_send_recv_get(harkd,d->addr,&d->I,&d->V,&d->P,&d->IM,&d->PM,&d->R);
      if(r!=HARKD_OK) return r;
      if(!strcasecmp(var,"I"))         { *val = d->I;
@@ -143,13 +144,13 @@ harkd_r harkd_array_get (harkd_t *harkd,const char *var,double *val) {
      } else if(!strcasecmp(var,"PM")) { *val = d->PM;
      } else if(!strcasecmp(var,"R"))  { *val = d->R;
      } else {
-	  harkd_errorf_invalid_variable(harkd,var);
+	  harkd_error_invalid_variable(harkd,var);
 	  return HARKD_ERR;
      }
      return r;
 }
-harkd_r harkd_array_set (harkd_t *harkd,const char *var,double *val) {
-     harkd_r r; harkd_371x_t *d = harkd_udata(harkd);
+harkd_r harkd_array_set (harkd_dev_obj_t *harkd,const char *var,double *val) {
+     harkd_r r; harkd_371x_t *d = harkd_itf_data(harkd,harkd_371x_t);
      if(!strcasecmp(var,"R")) {
 	  r = msg_371x_send_R(harkd,d->addr,*val,d->IM,d->PM);
      } else if(!strcasecmp(var,"I")) {
@@ -161,21 +162,21 @@ harkd_r harkd_array_set (harkd_t *harkd,const char *var,double *val) {
      } else if(!strcasecmp(var,"PM")) {
 	  d->PM = *val;
      } else {
-	  harkd_errorf_invalid_variable(harkd,var);
+	  harkd_error_invalid_variable(harkd,var);
 	  return HARKD_ERR;
      }
      return r;
 }
 
 
-harkd_r harkd_array_clear(harkd_t *harkd) {
+harkd_r harkd_array_clear(harkd_dev_obj_t *harkd) {
      return msg_371x_send_I(harkd,0x0,0,30,200);
 }
 
 
 
 
-const harkd_def_t HARKD_DEVICE_ARRAY_371X = {
+const harkd_dev_itf_t HARKD_DEVICE_ARRAY_371X = {
      "ARRAY-371X",
      "Single input programmable DC electronic load.",
      's',

@@ -1,7 +1,8 @@
-#include "../harkd-test.h"
-harkd_r harkd_example_test (uterm_t *u,harkd_test_var_t *vars) {
+#include "../harkd.h"
+#include <hitz/hitz.h>
+harkd_r harkd_example_test (harkd_test_var_t *vars) {
      FOREACH_TEST_VARIABLES(v,vars) {
-	  uterm_printf(u,"%s=%s\n",v->name,v->value);
+	  harkd_printf(1,"%s=%s\n",v->name,v->value);
      }
      return HARKD_OK;
 }

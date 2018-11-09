@@ -4,10 +4,11 @@
  * > minicom -b 9600 -D /dev/ttyUSB0 -8 
  */
 
-#include "../harkd-device.h"
+#include "../harkd.h"
 #include <stdio.h>
 #include <string.h>
-harkd_r harkd_mpd_init(harkd_t *harkd,const char *port,char *args[]) {
+#include <stdlib.h>
+harkd_r harkd_mpd_init(harkd_dev_obj_t *harkd,const char *port,const char *args[]) {
      char buffer[512];
      if(harkd_serial_open(harkd,port)==NULL)                  goto io_error;
      if(harkd_serial_puts(harkd,"\n*idn?\n")!=HARKD_OK)       goto io_error;
@@ -21,10 +22,10 @@ io_error:
 another_device:
      return HARKD_ERR;
 }
-harkd_r harkd_mpd_command(harkd_t *harkd,char *args[]) {
+harkd_r harkd_mpd_command(harkd_dev_obj_t *harkd,const char *args[]) {
      return HARKD_OK;
 }
-harkd_r harkd_mpd_get (harkd_t *harkd,const char *var,double *val) {
+harkd_r harkd_mpd_get (harkd_dev_obj_t *harkd,const char *var,double *val) {
      char buffer[64];
      if(!(var[0]=='V'||var[0]=='I')) goto variable_not_available; 
      if(!(var[1]=='1'||var[1]=='2')) goto variable_not_available;
@@ -34,12 +35,12 @@ harkd_r harkd_mpd_get (harkd_t *harkd,const char *var,double *val) {
      *val = atof(buffer);
      return HARKD_OK;
 variable_not_available:
-     harkd_errorf_invalid_variable(harkd,var);
+     harkd_error_invalid_variable(harkd,var);
      return HARKD_ERR;
 io_error:
      return HARKD_ERR;
 }
-harkd_r harkd_mpd_set (harkd_t *harkd,const char *var,double *val) {
+harkd_r harkd_mpd_set (harkd_dev_obj_t *harkd,const char *var,double *val) {
      char buffer[64];
      if(!(var[0]=='V'||var[0]=='I')) goto variable_not_available; 
      if(!(var[1]=='1'||var[1]=='2')) goto variable_not_available; 
@@ -48,16 +49,16 @@ harkd_r harkd_mpd_set (harkd_t *harkd,const char *var,double *val) {
      //harkd_wait(200);
      return HARKD_ERR;
 variable_not_available:
-     harkd_errorf_invalid_variable(harkd,var);
+     harkd_error_invalid_variable(harkd,var);
      return HARKD_ERR;
 io_error:
      return HARKD_ERR;
 }
-harkd_r harkd_mpd_clear(harkd_t *harkd) {
+harkd_r harkd_mpd_clear(harkd_dev_obj_t *harkd) {
      return harkd_serial_puts(harkd,
 			      "OUT0" "\n");
 }
-const harkd_def_t HARKD_DEVICE_MPD3305D = {
+const harkd_dev_itf_t HARKD_DEVICE_MPD3305D = {
      "MPD-3305D","30V 5A USB Interface Programmable Power Supply",'s',
      harkd_help_outputs("I1,I2,V1,V2")
      harkd_help_inputs("I1,I2,V1,V2")

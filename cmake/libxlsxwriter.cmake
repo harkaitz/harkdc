@@ -1,0 +1,11 @@
+## #
+include_guard()
+include(cmake/libz.cmake)
+find_library(xlsxwriter_LIBRARY NAMES libxlsxwriter.a libxlsxwriter.lib)
+find_path(xlsxwriter_INCLUDE xlsxwriter.h)
+if (NOT (xlsxwriter_LIBRARY AND xlsxwriter_INCLUDE))
+  message(FATAL_ERROR "Library `xlsxwriter` not found in; ${CMAKE_PREFIX_PATH}")
+endif()
+message("++ xlsxwriter: ${xlsxwriter_INCLUDE} ${xlsxwriter_LIBRARY}")
+list(APPEND INCLUDES ${xlsxwriter_INCLUDE})
+list(APPEND LIBS ${xlsxwriter_LIBRARY})

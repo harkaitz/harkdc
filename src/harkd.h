@@ -1,3 +1,12 @@
+/************************************************************************
+ * Licensed `GPLv2` for open source use or HARKD's `Commercial License`
+ * for commercial use, visit http://sugaar-solutions.com for more information.
+ *
+ * Copyright 2018 Sugaar Solutions, all rights reserved
+ *
+ * Authors: Harkaitz Agirre Ezama
+ ************************************************************************/
+ 
 #ifndef _HARKD_H_
 #define _HARKD_H_
 #include <stddef.h>

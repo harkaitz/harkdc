@@ -1,3 +1,12 @@
+/************************************************************************
+ * Licensed `GPLv2` for open source use or HARKD's `Commercial License`
+ * for commercial use, visit http://sugaar-solutions.com for more information.
+ *
+ * Copyright 2018 Sugaar Solutions, all rights reserved
+ *
+ * Authors: Harkaitz Agirre Ezama
+ ************************************************************************/
+ 
 /* List of `const harkd_dev_itf_t` typed variables.*/
 extern const harkd_dev_itf_t HARKD_DEVICE_ARRAY_371X;
 extern const harkd_dev_itf_t HARKD_DEVICE_EXAMPLE;

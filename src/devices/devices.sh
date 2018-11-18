@@ -1,4 +1,13 @@
 #!/bin/sh
+# ************************************************************************
+# * Licensed `GPLv2` for open source use or HARKD's `Commercial License`
+# * for commercial use, visit http://sugaar-solutions.com for more information.
+# *
+# * Copyright 2018 Sugaar Solutions, all rights reserved
+# *
+# * Authors: Harkaitz Agirre Ezama
+# ***********************************************************************
+ 
 dir="`dirname "$0"`"
 echo "[+] Searching new device definitions ..."
 echo -n "" > $dir/devices.lst

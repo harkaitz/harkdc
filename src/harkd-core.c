@@ -1,3 +1,12 @@
+/************************************************************************
+ * Licensed `GPLv2` for open source use or HARKD's `Commercial License`
+ * for commercial use, visit http://sugaar-solutions.com for more information.
+ *
+ * Copyright 2018 Sugaar Solutions, all rights reserved
+ *
+ * Authors: Harkaitz Agirre Ezama
+ ************************************************************************/
+ 
 #include "harkd.h"
 #include "devices/devices.h" /* harkd_device_list  */
 #include "tests/tests.h"     /* harkd_tests        */

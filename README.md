@@ -1,6 +1,3 @@
----
-title: HARKD
----
 # HARKD
 
 A laboratory measurement automation tool, which consists on two programs;

@@ -16,23 +16,3 @@ here [harkdc](https://github.com/harkaitz/harkdc) and [harkdw](https://github.co
 ![harkdw](PRUEBA.png?cropResize=300)
 ![lab](lab.png?cropResize=500)
 
-## Licensing
-
-This software is [dual-licensed](https://en.wikipedia.org/wiki/Multi-licensing), with this
-two modalities.
-
-Academic License:
-
-	· The source code can be accessed.
-	· No cost.
-	· Only for educational use.
-	· All changes must be published in the public repositories.
-	· No commercial use is permited.
-	· For all other purposes the GPLv2 license.
-	
-Commercial License:
-
-	· The source code is available.
-	· 30€/month usage cost.
-	· Contact us for more information.
-	· No need to publish teh changes made to the software.
